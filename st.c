@@ -1082,7 +1082,7 @@ kscrollup(const Arg* a)
 	if (n < 0)
 		n = term.row + n;
 
-	if (term.scr <= HISTSIZE-n) {
+	if (term.scr <= term.histi-n) {
 		term.scr += n;
 		selscroll(0, n);
 		tfulldirt();
