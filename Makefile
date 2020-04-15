@@ -29,6 +29,9 @@ $(OBJ): config.h config.mk
 st: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(STLDFLAGS)
 
+debug: $(OBJ)
+	$(CC) -g $(OBJ) $(STCFLAGS) $(STLDFLAGS) -o debug
+
 clean:
 	rm -f st $(OBJ) st-$(VERSION).tar.gz
 

@@ -19,6 +19,7 @@
 
 #include "st.h"
 #include "win.h"
+#include <fribidi.h>
 
 #if   defined(__linux)
  #include <pty.h>
@@ -847,6 +848,19 @@ ttywrite(const char *s, size_t n, int may_echo)
 
 	kscrolldown(&arg);
 
+  int i;
+  char outstr[n];
+  FriBidiChar logstr[n];
+  FriBidiChar vis[n];
+  FriBidiParType base = (FriBidiParType) FRIBIDI_TYPE_ON;
+
+  fribidi_charset_to_unicode(1, s, n, logstr);
+
+  // fribidi_log2vis(logstr, n, &base, vis, NULL, NULL, NULL);
+  // this line should reverse the stuff, but it doesnt work.
+  fribidi_unicode_to_charset(1, logstr, n, outstr);
+  s = &outstr[0];
+
 	if (may_echo && IS_SET(MODE_ECHO))
 		twrite(s, n, 1);
 
@@ -854,6 +868,8 @@ ttywrite(const char *s, size_t n, int may_echo)
 		ttywriteraw(s, n);
 		return;
 	}
+
+  // fribidi stuff...
 
 	/* This is similar to how the kernel handles ONLCR for ttys */
 	while (n > 0) {
@@ -876,6 +892,7 @@ ttywriteraw(const char *s, size_t n)
 	fd_set wfd, rfd;
 	ssize_t r;
 	size_t lim = 256;
+  size_t loglen = strlen(s);
 
 	/*
 	 * Remember that we are using a pty, which might be a modem line.
